@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readSessionCookie } from '@/lib/auth/session';
-import { supabaseServer } from '@/lib/supabase/server';
+import { tutorRepo } from '@/lib/repositories';
 
 export async function GET() {
     const session = await readSessionCookie();
@@ -10,25 +10,17 @@ export async function GET() {
     }
 
     try {
-        const supabase = supabaseServer();
-        const { data, error } = await supabase
-            .from('tutors')
-            .select('*')
-            .eq('user_id', session.userId)
-            .single();
+        const data = await tutorRepo.getTutorByUserId(session.userId);
 
-        if (error) {
-            // If table doesn't exist or env not set, return mocked data for Day 1
-            console.warn('Supabase fetch failed, returning mock data:', error.message);
+        if (!data) {
             return NextResponse.json({
                 profile: {
-                    bio: 'Mock bio - please set up Supabase to persist.',
-                    hourly_rate: 45,
-                    experience_years: 5,
-                    timezone: 'America/New_York',
+                    bio: '',
+                    hourly_rate: 0,
+                    experience_years: 0,
+                    timezone: 'UTC',
                     toggle_active: true
-                },
-                isMocked: true
+                }
             });
         }
 
@@ -47,25 +39,10 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        const supabase = supabaseServer();
-
-        // In a real app, we'd validate 'body' with Zod
-        // For Day 1, we attempt an upsert but catch errors if DB isn't ready
-        const { error } = await supabase
-            .from('tutors')
-            .upsert({
-                user_id: session.userId,
-                ...body,
-                updated_at: new Date().toISOString(),
-            });
-
-        if (error) {
-            return NextResponse.json({
-                error: 'Supabase storage failed',
-                message: 'Database tables might not be created yet. Run the SQL scripts in /supabase/schema.',
-                mockSavedBody: body
-            }, { status: 503 });
-        }
+        await tutorRepo.upsertTutorProfile({
+            user_id: session.userId,
+            ...body,
+        });
 
         return NextResponse.json({ ok: true });
     } catch (err) {

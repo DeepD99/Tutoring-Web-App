@@ -18,29 +18,36 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 font-sans p-6 text-slate-900">
-            <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-100">
-                <h1 className="text-3xl font-bold mb-8 text-center text-slate-800">Welcome</h1>
-                <p className="text-slate-500 text-center mb-8">Choose your role to log in</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', backgroundColor: '#f8fafc', padding: '1.5rem', color: '#1e293b', fontFamily: 'system-ui' }}>
+            <div style={{ width: '100%', maxWidth: '400px', padding: '2rem', backgroundColor: '#ffffff', borderRadius: '1rem', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', border: '1px solid #f1f5f9' }}>
+                <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center', color: '#0f172a' }}>Welcome</h1>
+                <p style={{ color: '#64748b', textAlign: 'center', marginBottom: '2rem' }}>Choose your role to log in</p>
 
-                <div className="space-y-4">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <button
                         onClick={() => handleLogin('tutor')}
-                        className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-indigo-100"
+                        style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: '#4f46e5', color: '#ffffff', borderRadius: '0.75rem', border: 'none', fontWeight: '500', cursor: 'pointer' }}
                     >
                         Login as Tutor
                     </button>
                     <button
                         onClick={() => handleLogin('parent')}
-                        className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-100 rounded-xl font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                        style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: '#ffffff', color: '#334155', border: '1px solid #e2e8f0', borderRadius: '0.75rem', fontWeight: '500', cursor: 'pointer' }}
                     >
                         Login as Parent
                     </button>
                     <button
                         onClick={() => handleLogin('student')}
-                        className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-100 rounded-xl font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                        style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: '#ffffff', color: '#334155', border: '1px solid #e2e8f0', borderRadius: '0.75rem', fontWeight: '500', cursor: 'pointer' }}
                     >
                         Login as Student
+                    </button>
+                    <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '0.5rem 0' }} />
+                    <button
+                        onClick={() => handleLogin('admin')}
+                        style={{ width: '100%', padding: '0.75rem 1rem', backgroundColor: '#ef4444', color: '#ffffff', borderRadius: '0.75rem', border: 'none', fontWeight: '500', cursor: 'pointer' }}
+                    >
+                        Login as Admin
                     </button>
                 </div>
             </div>

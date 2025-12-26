@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { setSessionCookie, UserRole } from '@/lib/auth/session';
+import { setSessionCookie, UserRole, readSessionCookie } from '@/lib/auth/session';
 
 export async function POST(request: Request) {
     try {
@@ -9,7 +9,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Role is required' }, { status: 400 });
         }
 
-        const userId = crypto.randomUUID();
+        // Use static IDs from mockDb seed to maintain consistency during testing
+        const userId = `${role}-1`;
 
         await setSessionCookie({ userId, role });
 
@@ -17,4 +18,9 @@ export async function POST(request: Request) {
     } catch (error) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
+}
+
+export async function GET() {
+    const session = await readSessionCookie();
+    return NextResponse.json(session || { error: 'No session' });
 }

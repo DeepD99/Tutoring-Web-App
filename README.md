@@ -35,8 +35,16 @@ For initial development, we use a mock authentication system:
 - Middleware protects `/dashboard` and `/tutor/*` routes.
 
 ## 🏗️ Project Structure
-- `src/app/api`: API routes for auth and profiles.
+- `src/app/api`: API routes for auth, profiles, and sessions.
 - `src/lib/auth`: Session management logic.
+- `src/lib/repositories`: Repository interfaces and implementations (DB-Contract Mode).
 - `src/lib/supabase`: Supabase client configuration.
 - `src/middleware.ts`: Route protection and role-based access.
 - `supabase/schema`: SQL migration files.
+
+## 📦 DB-Contract Mode
+The application uses a **Repository Pattern** to decouple business logic from the database provider. This allows development to continue even when Supabase is unavailable.
+
+- **Mock Repositories**: When `APP_ENV=local`, the app uses in-memory Map-based repositories (`*.mock.ts`).
+- **Data Persistence**: Mock data is lost on server restart. A default set of users (Tutor, Student, Parent) is seeded on initialization.
+- **Switching to Supabase**: To switch to Supabase, implement the repository interfaces using `@supabase/supabase-js` and update the factory in `src/lib/repositories/index.ts`.
