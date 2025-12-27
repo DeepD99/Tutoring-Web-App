@@ -9,6 +9,7 @@ interface Session {
     status: string;
     tutor_id: string | null;
     gradeLevel: number;
+    preferredTimes: string[];
 }
 
 interface Tutor {
@@ -111,7 +112,22 @@ export default function AdminRequestsPage() {
                             {sessions.map((s) => (
                                 <tr key={s.id}>
                                     <td style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
-                                        {s.subject} (Gr. {s.gradeLevel})
+                                        <div style={{ fontWeight: 'bold' }}>{s.subject} (Gr. {s.gradeLevel})</div>
+                                        {s.preferredTimes && s.preferredTimes.length > 0 && (
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.5rem' }}>
+                                                {s.preferredTimes.map((time, idx) => (
+                                                    <span key={idx} style={{
+                                                        fontSize: '0.7rem',
+                                                        backgroundColor: '#f1f5f9',
+                                                        padding: '1px 6px',
+                                                        borderRadius: '10px',
+                                                        color: '#64748b'
+                                                    }}>
+                                                        {time}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </td>
                                     <td style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
                                         <span style={{ fontSize: '0.75rem', fontWeight: 'bold', padding: '0.25rem 0.5rem', borderRadius: '4px', backgroundColor: '#fef3c7', color: '#92400e' }}>

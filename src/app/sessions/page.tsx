@@ -9,6 +9,7 @@ interface Session {
     status: string;
     tutor_id: string | null;
     gradeLevel: number;
+    preferredTimes: string[];
 }
 
 export default function SessionsPage() {
@@ -82,7 +83,23 @@ export default function SessionsPage() {
                                         fontWeight: '600'
                                     }}>{s.status}</span>
                                 </p>
-                                {s.tutor_id && <p style={{ fontSize: '0.875rem' }}>Tutor: <code style={{ background: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>{s.tutor_id}</code></p>}
+                                {s.preferredTimes && s.preferredTimes.length > 0 && (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem' }}>
+                                        {s.preferredTimes.map((time, idx) => (
+                                            <span key={idx} style={{
+                                                fontSize: '0.75rem',
+                                                backgroundColor: '#f1f5f9',
+                                                padding: '2px 8px',
+                                                borderRadius: '12px',
+                                                border: '1px solid #e2e8f0',
+                                                color: '#475569'
+                                            }}>
+                                                {time}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                                {s.tutor_id && <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Tutor: <code style={{ background: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>{s.tutor_id}</code></p>}
                             </div>
 
                             {(role === 'parent' || role === 'student') && s.status === 'PENDING_PARENT_APPROVAL' && (
