@@ -21,20 +21,36 @@ export default function AdminRequestsPage() {
     const [tutors, setTutors] = useState<Tutor[]>([]);
     const [loading, setLoading] = useState(true);
     const [matching, setMatching] = useState<Record<string, string>>({});
+    const [error, setError] = useState<string | null>(null);
+    const [debugTotal, setDebugTotal] = useState(0);
 
     const fetchData = async () => {
+        setError(null);
         try {
+            console.log('Fetching admin data...');
             const [sRes, tRes] = await Promise.all([
                 fetch('/api/sessions'),
                 fetch('/api/tutors')
             ]);
+
+            if (!sRes.ok || !tRes.ok) {
+                throw new Error(`Failed to fetch: sessions=${sRes.status}, tutors=${tRes.status}`);
+            }
+
             const sData = await sRes.json();
             const tData = await tRes.json();
+
+            console.log('Admin sessions received:', sData.sessions);
+            setDebugTotal(sData.sessions?.length || 0);
+
             setSessions((sData.sessions || []).filter((s: Session) =>
                 ['PENDING_MATCH', 'NEEDS_REASSIGNMENT'].includes(s.status)
             ));
             setTutors(tData.tutors || []);
-        } catch (e) { } finally {
+        } catch (e: any) {
+            console.error('Fetch error:', e);
+            setError(e.message);
+        } finally {
             setLoading(false);
         }
     };
@@ -59,10 +75,25 @@ export default function AdminRequestsPage() {
 
     return (
         <div style={{ padding: '2rem', maxWidth: '900px', margin: '0 auto', fontFamily: 'system-ui' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Admin: Handle Requests</h1>
-                <Link href="/dashboard" style={{ color: '#0ea5e9', textDecoration: 'none' }}>Dashboard</Link>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Total sessions matching admin view: {debugTotal}</span>
+                    <button
+                        onClick={() => fetchData()}
+                        style={{ padding: '0.5rem 1rem', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                        🔄 Refresh
+                    </button>
+                    <Link href="/dashboard" style={{ color: '#0ea5e9', textDecoration: 'none' }}>Dashboard</Link>
+                </div>
             </header>
+
+            {error && (
+                <div style={{ padding: '1rem', backgroundColor: '#fef2f2', color: '#991b1b', borderRadius: '6px', marginBottom: '1rem' }}>
+                    Error: {error}
+                </div>
+            )}
 
             {sessions.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#64748b' }}>No pending requests.</p>

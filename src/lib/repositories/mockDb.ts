@@ -50,6 +50,32 @@ class MockDataStore {
             timezone: 'UTC',
             updated_at: new Date().toISOString(),
         });
+
+        const sessionId1 = 'session-1';
+        this.sessions.set(sessionId1, {
+            id: sessionId1,
+            student_id: studentId,
+            parent_id: parentId,
+            tutor_id: null,
+            status: 'PENDING_MATCH',
+            subject: 'AP Biology',
+            gradeLevel: 11,
+            preferredTimes: ['Mon 4pm', 'Wed 4pm'],
+            created_at: new Date().toISOString(),
+        });
+
+        const sessionId2 = 'session-2';
+        this.sessions.set(sessionId2, {
+            id: sessionId2,
+            student_id: studentId,
+            parent_id: parentId,
+            tutor_id: tutorId,
+            status: 'PENDING_PARENT_APPROVAL',
+            subject: 'Algebra II',
+            gradeLevel: 10,
+            preferredTimes: ['Tue 5pm'],
+            created_at: new Date().toISOString(),
+        });
     }
 }
 
