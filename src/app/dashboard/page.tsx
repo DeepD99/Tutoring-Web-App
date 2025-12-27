@@ -1,6 +1,7 @@
 import { readSessionCookie } from '@/lib/auth/session';
 import Link from 'next/link';
 import LogoutButton from '@/components/LogoutButton';
+import ClearSessionsButton from '@/components/ClearSessionsButton';
 
 export default async function DashboardPage() {
     const session = await readSessionCookie();
@@ -12,9 +13,12 @@ export default async function DashboardPage() {
 
     return (
         <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', fontFamily: 'system-ui' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', gap: '1rem', flexWrap: 'wrap' }}>
                 <h1 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Dashboard</h1>
-                <LogoutButton />
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <ClearSessionsButton />
+                    <LogoutButton />
+                </div>
             </header>
 
             <section style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '2rem' }}>

@@ -80,4 +80,8 @@ export class MockSessionRepository implements ISessionRepository {
     async getAllSessions(): Promise<Session[]> {
         return Array.from(mockDb.sessions.values());
     }
+
+    async clearAllSessions(): Promise<void> {
+        mockDb.sessions.clear();
+    }
 }

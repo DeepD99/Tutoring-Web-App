@@ -30,4 +30,5 @@ export interface ISessionRepository {
     getSessionsByUser(userId: string, role: string): Promise<Session[]>;
     getSessionById(sessionId: string): Promise<Session | null>;
     getAllSessions(): Promise<Session[]>; // For admin
+    clearAllSessions(): Promise<void>;
 }
