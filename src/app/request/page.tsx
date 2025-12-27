@@ -43,6 +43,8 @@ const TIME_SLOTS = [
     "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"
 ];
 
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 export default function RequestTutoringPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
@@ -74,6 +76,10 @@ export default function RequestTutoringPage() {
         return new Date(schedulerYear, schedulerMonth + 1, 0).getDate();
     }, [schedulerMonth, schedulerYear]);
 
+    const firstDayOfMonth = useMemo(() => {
+        return new Date(schedulerYear, schedulerMonth, 1).getDay();
+    }, [schedulerMonth, schedulerYear]);
+
     const monthName = MONTHS[schedulerMonth];
 
     useEffect(() => {
@@ -88,7 +94,8 @@ export default function RequestTutoringPage() {
 
     const addTimeSlot = (time: string) => {
         if (selectedDay === null) return;
-        const dateString = `${monthName} ${selectedDay}, ${schedulerYear} @ ${time}`;
+        const dayOfWeek = WEEKDAYS[new Date(schedulerYear, schedulerMonth, selectedDay).getDay()];
+        const dateString = `${dayOfWeek}, ${monthName} ${selectedDay} @ ${time}`;
         if (!formData.preferredTimes.includes(dateString)) {
             setFormData({
                 ...formData,
@@ -299,6 +306,14 @@ export default function RequestTutoringPage() {
                         <div style={{ position: 'relative', minHeight: '180px' }}>
                             {schedulerScene === 'day' ? (
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+                                    {WEEKDAYS.map(wd => (
+                                        <div key={wd} style={{ fontSize: '0.625rem', fontWeight: 'bold', textAlign: 'center', color: '#64748b', paddingBottom: '4px' }}>
+                                            {wd}
+                                        </div>
+                                    ))}
+                                    {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+                                        <div key={`empty-${i}`} />
+                                    ))}
                                     {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => (
                                         <div
                                             key={day}
@@ -307,7 +322,7 @@ export default function RequestTutoringPage() {
                                                 setSchedulerScene('time');
                                             }}
                                             style={{
-                                                padding: '8px',
+                                                padding: '8px 4px',
                                                 textAlign: 'center',
                                                 cursor: 'pointer',
                                                 borderRadius: '4px',
@@ -324,7 +339,9 @@ export default function RequestTutoringPage() {
                             ) : (
                                 <div style={{ animation: 'fadeIn 0.2s' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                        <span style={{ fontSize: '0.875rem', fontWeight: 'bold' }}>Pick time for {monthName} {selectedDay}:</span>
+                                        <span style={{ fontSize: '0.875rem', fontWeight: 'bold' }}>
+                                            Pick time for {WEEKDAYS[new Date(schedulerYear, schedulerMonth, selectedDay || 1).getDay()]}, {monthName} {selectedDay}:
+                                        </span>
                                         <button
                                             type="button"
                                             onClick={() => setSchedulerScene('day')}
