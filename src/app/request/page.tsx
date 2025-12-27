@@ -95,7 +95,7 @@ export default function RequestTutoringPage() {
     const addTimeSlot = (time: string) => {
         if (selectedDay === null) return;
         const dayOfWeek = WEEKDAYS[new Date(schedulerYear, schedulerMonth, selectedDay).getDay()];
-        const dateString = `${dayOfWeek}, ${monthName} ${selectedDay} @ ${time}`;
+        const dateString = `${dayOfWeek}, ${monthName} ${selectedDay}, ${schedulerYear} @ ${time}`;
         if (!formData.preferredTimes.includes(dateString)) {
             setFormData({
                 ...formData,

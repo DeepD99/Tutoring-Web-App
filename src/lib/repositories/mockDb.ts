@@ -60,7 +60,7 @@ class MockDataStore {
             status: 'PENDING_MATCH',
             subject: 'AP Biology',
             gradeLevel: 11,
-            preferredTimes: ['Mon 4pm', 'Wed 4pm'],
+            preferredTimes: ['Mon, December 29, 2025 @ 4:00 PM', 'Wed, December 31, 2025 @ 4:00 PM'],
             created_at: new Date().toISOString(),
         });
 
@@ -73,7 +73,7 @@ class MockDataStore {
             status: 'PENDING_PARENT_APPROVAL',
             subject: 'Algebra II',
             gradeLevel: 10,
-            preferredTimes: ['Tue 5pm'],
+            preferredTimes: ['Tue, December 30, 2025 @ 5:00 PM'],
             created_at: new Date().toISOString(),
         });
     }
