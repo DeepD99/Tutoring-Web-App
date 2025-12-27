@@ -26,7 +26,7 @@ Run the SQL scripts located in `supabase/schema/` in your Supabase SQL Editor:
 ```bash
 npm run dev
 ```
-Visit [http://localhost:3000/login](http://localhost:3000/login) to start.
+Visit [https://tutoring-web-app-chi.vercel.app/login] to start.
 
 ## 🔑 Mock Authentication
 For initial development, we use a mock authentication system:
