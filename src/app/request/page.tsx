@@ -25,19 +25,26 @@ const SUBJECTS = [
     "U.S. Government", "U.S. History", "Web Design", "Web Development", "World History"
 ];
 
+const GRADES = [
+    { value: 9, label: "9th Grade (Freshman)" },
+    { value: 10, label: "10th Grade (Sophomore)" },
+    { value: 11, label: "11th Grade (Junior)" },
+    { value: 12, label: "12th Grade (Senior)" },
+];
+
 export default function RequestTutoringPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         subject: '',
-        gradeLevel: 1,
+        gradeLevel: 9,
         preferredTimes: '',
     });
     const [searchQuery, setSearchQuery] = useState('');
-    const [showDropdown, setShowDropdown] = useState(false);
+    const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const subjectDropdownRef = useRef<HTMLDivElement>(null);
 
     const filteredSubjects = useMemo(() => {
         if (!searchQuery) return SUBJECTS;
@@ -46,8 +53,8 @@ export default function RequestTutoringPage() {
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setShowDropdown(false);
+            if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(event.target as Node)) {
+                setShowSubjectDropdown(false);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -95,10 +102,10 @@ export default function RequestTutoringPage() {
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '2rem' }}>Request Tutoring</h1>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{ position: 'relative' }} ref={dropdownRef}>
+                <div style={{ position: 'relative' }} ref={subjectDropdownRef}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Subject</label>
                     <div
-                        onClick={() => setShowDropdown(!showDropdown)}
+                        onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
                         style={{
                             width: '100%',
                             padding: '0.75rem',
@@ -117,7 +124,7 @@ export default function RequestTutoringPage() {
                         <span style={{ fontSize: '0.75rem' }}>▼</span>
                     </div>
 
-                    {showDropdown && (
+                    {showSubjectDropdown && (
                         <div style={{
                             position: 'absolute',
                             top: '100%',
@@ -157,7 +164,7 @@ export default function RequestTutoringPage() {
                                             key={subject}
                                             onClick={() => {
                                                 setFormData({ ...formData, subject });
-                                                setShowDropdown(false);
+                                                setShowSubjectDropdown(false);
                                                 setSearchQuery('');
                                             }}
                                             style={{
@@ -186,15 +193,25 @@ export default function RequestTutoringPage() {
 
                 <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Grade Level</label>
-                    <input
-                        required
-                        type="number"
-                        min="1"
-                        max="12"
+                    <select
                         value={formData.gradeLevel}
                         onChange={(e) => setFormData({ ...formData, gradeLevel: Number(e.target.value) })}
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}
-                    />
+                        style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            borderRadius: '6px',
+                            border: '1px solid #e2e8f0',
+                            backgroundColor: 'white',
+                            fontSize: '1rem',
+                            outline: 'none'
+                        }}
+                    >
+                        {GRADES.map(grade => (
+                            <option key={grade.value} value={grade.value}>
+                                {grade.label}
+                            </option>
+                        ))}
+                    </select>
                 </div>
 
                 <div>
