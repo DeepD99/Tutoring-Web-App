@@ -1,1 +1,151 @@
-Roles + what each role can do Roles Student: creates a session request Parent/Guardian: approves/rejects requests for their student (and can see history) Tutor: accepts/declines approved requests; delivers session Admin: sees everything; can override, match, debug What “existing platforms” standardize A single source of truth record (“booking” or “session request”) with a status Role-based views (each role sees the same object, filtered differently) Approval gates (some roles can only act when prior gate is satisfied) 2) The minimal state machine (implement this first) Use one status field (enum) + an audit log. Status enum DRAFT (optional) – student filling form PENDING_PARENT_APPROVAL REJECTED_BY_PARENT APPROVED_BY_PARENT PENDING_TUTOR_ACCEPTANCE (or combine with #4) DECLINED_BY_TUTOR CONFIRMED CANCELLED COMPLETED NO_SHOW (optional) Allowed transitions Student: → PENDING_PARENT_APPROVAL (submit), or cancel Parent: PENDING_PARENT_APPROVAL → APPROVED_BY_PARENT | REJECTED_BY_PARENT Tutor: APPROVED_BY_PARENT → CONFIRMED | DECLINED_BY_TUTOR Admin: can set any status + override tutor assignment This alone gives you the “approval chain” cleanly. 3) Database tables (minimal but real) A) users id (auth id) role (student|parent|tutor|admin) name, email B) families id name C) family_members family_id user_id relationship (student|parent) (optional) student_user_id if you want explicit parent→student mapping D) session_requests (THE core object) id student_id parent_id (can be null if not needed) tutor_id (nullable until matched) subject / course requested_start_time, duration_minutes location_type (online|in_person) notes status (enum above) created_at, updated_at E) request_events (audit trail + notifications source) id request_id actor_user_id event_type (created|approved|rejected|assigned|accepted|declined|cancelled|completed) metadata (json) created_at Platforms that “feel professional” always have an audit/event log. It also makes debugging approvals easy. 4) Row-level security / access rules (critical) Whether you use Supabase or your own backend, implement these rules: session_requests visibility Student: can read where student_id = auth.uid() Parent: can read where parent_id = auth.uid() OR belongs to same family as student Tutor: can read where tutor_id = auth.uid() OR where status = APPROVED_BY_PARENT and it’s in the tutor’s eligible pool Admin: can read all session_requests update rules Student: can update only when status in (DRAFT, PENDING_PARENT_APPROVAL) and only their own; can cancel Parent: can update only PENDING_PARENT_APPROVAL to approved/rejected for linked student Tutor: can update only requests assigned to them and in correct status Admin: can update anything This is the “approval gating” enforcement. UI alone isn’t enough. 5) API endpoints (implementable today) Student endpoints POST /requests → creates request with status=PENDING_PARENT_APPROVAL GET /requests?mine=true POST /requests/:id/cancel Parent endpoints GET /requests?pendingApproval=true POST /requests/:id/approve POST /requests/:id/reject Tutor endpoints GET /requests?assignedToMe=true POST /requests/:id/accept POST /requests/:id/decline Admin endpoints GET /requests (all + filters) POST /requests/:id/assign-tutor (sets tutor_id, moves status) POST /requests/:id/override-status Each endpoint: checks role + relationship checks current status writes new status inserts a request_events row 6) Pages you need (simple, shippable) Auth / onboarding /login /onboarding (collect role; if student/parent: join family) Student /student/new-request (form) /student/requests (list + status chips) /student/request/:id (detail) Parent /parent/approvals (queue: approve/reject) /parent/requests (history) /parent/request/:id (detail + child context) Tutor /tutor/requests (assigned queue + accept/decline) /tutor/request/:id (detail) Admin /admin/requests (table w filters + “Assign tutor” modal + status override) /admin/request/:id (audit log visible) That’s enough for a working MVP. 7) Notifications (what existing platforms do) Use event-driven notifications from request_events. Triggers On created → notify parent On approved/rejected → notify student (+ admin optional) On assigned → notify tutor On accepted/declined → notify student + parent + admin Implementation today Email via SendGrid/Postmark OR in-app notifications table If you’re already on Supabase: DB trigger → Edge Function → email 8) The “matching” model (start manual) Existing platforms usually start with manual matching (admin assigns tutor). Don’t overbuild. MVP Admin picks tutor in UI Sets tutor_id Status becomes APPROVED_BY_PARENT (if parent already approved) then tutor sees it Later upgrade: Auto-match by subject, grade, availability 9) Copy-paste “implementation spec” (for your repo) Core rule: “All booking actions are status transitions. All transitions write an event.” Any action that changes a request: validate role validate relationship (student-parent family link) validate current_status update status insert into request_events That’s the spine of the product. You’re building a role-based tutoring and academic support platform for middle- and high-school students, where learners across grades 9–12 can request help in core academic subjects—English Language Arts (including honors and AP), mathematics from pre-algebra through AP Calculus AB/BC, science courses like biology, chemistry, and physics, and core social studies. Each session follows a structured approval chain: a student submits a request, a parent or guardian explicitly approves or rejects it, a qualified tutor accepts and delivers the session, and an admin oversees matching, compliance, and quality. The platform enforces permissions, visibility, and status transitions at the system level, creating a transparent, auditable workflow built specifically for minors where academic rigor, parental trust, and operational control are first-class features.
+# PROJECT CONTEXT
+
+## Platform Purpose
+Athletic academic tracking platform for high school student-athletes pursuing D1/D2/D3 collegiate sports. Integrates tutoring progress with NCAA eligibility requirements and target school admission standards.
+
+## Core User Journeys
+
+### Student Athlete
+1. Logs in → sees NCAA eligibility status immediately
+2. Checks gap between current GPA and target school requirements
+3. Views upcoming tutoring sessions and assignments
+4. Tracks grade improvements semester-over-semester
+5. Monitors recruiting timeline milestones
+
+### Tutor
+1. Logs student's session notes and homework
+2. Sees which subjects are blocking NCAA eligibility
+3. Gets alerts when student is falling behind target school requirements
+
+### Parent
+1. Views high-level academic progress (GPA trend, eligibility status)
+2. Sees tutoring session attendance and effectiveness
+3. Monitors progress toward target schools
+
+### Coach (Optional)
+1. Checks academic eligibility for games/tournaments
+2. Verifies NCAA clearinghouse status
+
+## Critical Data Points
+
+### NCAA Eligibility Metrics
+- Core course GPA (16 courses: 4 English, 3 Math, 2 Science, etc.)
+- SAT/ACT scores (sliding scale based on GPA)
+- Amateurism certification status
+- Clearinghouse registration status
+
+### Target School Requirements
+- Minimum GPA for each target school
+- Specific course requirements (some schools require 4 years of language)
+- Early decision/signing day deadlines
+- Scholarship offer status
+
+### Tutoring Performance
+- Sessions attended vs scheduled
+- Before/after grades per subject
+- Subjects currently being tutored
+- Tutor recommendations/notes
+
+### Academic Progress
+- Current GPA (overall + core courses)
+- Grade trends per subject
+- Semester-by-semester comparison
+- Projected GPA at graduation
+
+## Design Principles
+[Keep your existing principles about explaining logic, tradeoffs, etc.]
+
+## Tech Stack
+[Your current stack]
+
+## Key Differentiators from Standard LMS
+- NCAA eligibility is PRIMARY metric, not overall GPA
+- Target school comparison (not generic grade tracking)
+- Tutoring ROI visibility (before/after analysis)
+- Multi-stakeholder access (student, parent, tutor, coach)
+- Recruiting timeline integration
+```
+
+## Data Model Changes
+
+**New tables/collections you'll need**:
+```
+students
+- id
+- name
+- sport
+- graduationYear
+- ncaaEligibilityStatus
+
+targetSchools (many-to-many with students)
+- studentId
+- schoolName
+- division (D1/D2/D3)
+- minGPA
+- minSAT/ACT
+- status (reach/target/safety)
+- applicationDeadline
+
+tutoringHistory
+- studentId
+- tutorId
+- subject
+- sessionDate
+- notesFromTutor
+- assignedHomework
+
+ncaaRequirements
+- studentId
+- coreCourseGPA
+- satScore
+- actScore
+- clearinghouseStatus
+- amateurismStatus
+
+gradeHistory (enhanced)
+- studentId
+- subject
+- grade
+- semester
+- isCoreCourse (boolean - for NCAA tracking)
+```
+
+## API Endpoints to Add
+```
+GET /api/students/:id/ncaa-eligibility
+GET /api/students/:id/target-schools
+GET /api/students/:id/gap-analysis
+GET /api/students/:id/tutoring-sessions
+POST /api/tutoring-sessions (for tutors to log notes)
+GET /api/students/:id/recruiting-timeline
+```
+
+## Updated Dashboard Wireframe
+```
++--------------------------------------------------+
+| Welcome, [Name] - [Sport] | Class of [Year]      |
++--------------------------------------------------+
+| 🎯 NCAA ELIGIBILITY STATUS                        |
+| Core GPA: 3.2 ✅ | SAT: 1180 ⚠️ | Clearinghouse: ✅|
+| Status: ELIGIBLE for D1/D2/D3                     |
++--------------------------------------------------+
+| 📊 TARGET SCHOOLS GAP ANALYSIS                    |
+| 🟢 Texas A&M (3.0 req) - QUALIFIED               |
+| 🟡 LSU (3.3 req) - 0.1 away (Need A in Math)    |
+| 🔴 Alabama (3.5 req) - 0.3 away (2 semesters)   |
++--------------------------------------------------+
+| 📚 TUTORING PROGRESS                              |
+| Next Session: Tomorrow 4pm - Math (Mr. Johnson) |
+| Recent Improvement: English C+ → B (3 sessions)  |
+| Current Focus: Algebra II (blocking LSU req)     |
++--------------------------------------------------+
+| 📈 ACADEMIC PROGRESS                              |
+| Current GPA: 3.2 (↑ from 3.0 last semester)     |
+| Core Course GPA: 3.1 (NCAA requirement: 2.3 ✅)  |
+| Semester Trend: [Visual graph showing upward]    |
++--------------------------------------------------+
+| 🏈 RECRUITING TIMELINE                            |
+| Next Milestone: Junior Year Transcripts Due      |
+| Official Visit Window Opens: Sept 1              |
+| Early Signing Period: Nov 13-20                  |
++--------------------------------------------------+
