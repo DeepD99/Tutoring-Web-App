@@ -1,218 +1,151 @@
-# 🧠 Role-Based Tutoring Booking Platform — Core Design
+# PROJECT CONTEXT
 
-## 1️⃣ Roles & Responsibilities
+## Platform Purpose
+Athletic academic tracking platform for high school student-athletes pursuing D1/D2/D3 collegiate sports. Integrates tutoring progress with NCAA eligibility requirements and target school admission standards.
 
-### Roles
-- **Student**
-  - Creates session requests
-- **Parent / Guardian**
-  - Approves or rejects session requests for their student
-  - Can view request history
-- **Tutor**
-  - Accepts or declines approved requests
-  - Delivers tutoring sessions
-- **Admin**
-  - Full system visibility
-  - Can assign tutors, override statuses, and debug workflows
+## Core User Journeys
 
-### What Existing Platforms Standardize
-- A single source of truth record (session request / booking)
-- Role-based views (same object, filtered by permissions)
-- Approval gates (roles can only act after prior approvals)
-
----
-
-## 2️⃣ Minimal State Machine (Implement This First)
-
-Use one status field (enum) plus an audit log.
-
-### Status Enum
-- DRAFT (optional)
-- PENDING_PARENT_APPROVAL
-- REJECTED_BY_PARENT
-- APPROVED_BY_PARENT
-- PENDING_TUTOR_ACCEPTANCE (optional)
-- DECLINED_BY_TUTOR
-- CONFIRMED
-- CANCELLED
-- COMPLETED
-- NO_SHOW (optional)
-
-### Allowed Transitions
-- **Student**
-  - → PENDING_PARENT_APPROVAL (submit)
-  - Can cancel before confirmation
-- **Parent**
-  - PENDING_PARENT_APPROVAL → APPROVED_BY_PARENT | REJECTED_BY_PARENT
-- **Tutor**
-  - APPROVED_BY_PARENT → CONFIRMED | DECLINED_BY_TUTOR
-- **Admin**
-  - Can set any status
-  - Can override tutor assignment
-
----
-
-## 3️⃣ Database Tables (Minimal but Real)
-
-### A) users
-- id (auth ID)
-- role (student | parent | tutor | admin)
-- name
-- email
-
-### B) families
-- id
-- name
-
-### C) family_members
-- family_id
-- user_id
-- relationship (student | parent)
-- (optional) student_user_id
-
-### D) session_requests (core object)
-- id
-- student_id
-- parent_id (nullable)
-- tutor_id (nullable)
-- subject / course
-- requested_start_time
-- duration_minutes
-- location_type (online | in_person)
-- notes
-- status
-- created_at
-- updated_at
-
-### E) request_events (audit log)
-- id
-- request_id
-- actor_user_id
-- event_type (created | approved | rejected | assigned | accepted | declined | cancelled | completed)
-- metadata (json)
-- created_at
-
----
-
-## 4️⃣ Row-Level Security & Access Rules
-
-### session_requests — read access
-- Student: student_id = auth.uid()
-- Parent: parent_id = auth.uid() OR same family as student
-- Tutor:
-  - tutor_id = auth.uid()
-  - OR status = APPROVED_BY_PARENT and tutor is eligible
-- Admin: full access
-
-### session_requests — update rules
-- Student:
-  - Own requests only
-  - Status in (DRAFT, PENDING_PARENT_APPROVAL)
-  - Can cancel
-- Parent:
-  - Can update only PENDING_PARENT_APPROVAL
-- Tutor:
-  - Assigned requests only
-  - Correct status only
-- Admin:
-  - Can update anything
-
----
-
-## 5️⃣ API Endpoints
-
-### Student
-- POST /requests
-- GET /requests?mine=true
-- POST /requests/:id/cancel
-
-### Parent
-- GET /requests?pendingApproval=true
-- POST /requests/:id/approve
-- POST /requests/:id/reject
+### Student Athlete
+1. Logs in → sees NCAA eligibility status immediately
+2. Checks gap between current GPA and target school requirements
+3. Views upcoming tutoring sessions and assignments
+4. Tracks grade improvements semester-over-semester
+5. Monitors recruiting timeline milestones
 
 ### Tutor
-- GET /requests?assignedToMe=true
-- POST /requests/:id/accept
-- POST /requests/:id/decline
-
-### Admin
-- GET /requests
-- POST /requests/:id/assign-tutor
-- POST /requests/:id/override-status
-
-Each endpoint:
-- validates role + relationship
-- validates current status
-- updates status
-- inserts a request_events row
-
----
-
-## 6️⃣ Required Pages (MVP)
-
-### Auth / Onboarding
-- /login
-- /onboarding
-
-### Student
-- /student/new-request
-- /student/requests
-- /student/request/:id
+1. Logs student's session notes and homework
+2. Sees which subjects are blocking NCAA eligibility
+3. Gets alerts when student is falling behind target school requirements
 
 ### Parent
-- /parent/approvals
-- /parent/requests
-- /parent/request/:id
+1. Views high-level academic progress (GPA trend, eligibility status)
+2. Sees tutoring session attendance and effectiveness
+3. Monitors progress toward target schools
 
-### Tutor
-- /tutor/requests
-- /tutor/request/:id
+### Coach (Optional)
+1. Checks academic eligibility for games/tournaments
+2. Verifies NCAA clearinghouse status
 
-### Admin
-- /admin/requests
-- /admin/request/:id
+## Critical Data Points
 
----
+### NCAA Eligibility Metrics
+- Core course GPA (16 courses: 4 English, 3 Math, 2 Science, etc.)
+- SAT/ACT scores (sliding scale based on GPA)
+- Amateurism certification status
+- Clearinghouse registration status
 
-## 7️⃣ Notifications
+### Target School Requirements
+- Minimum GPA for each target school
+- Specific course requirements (some schools require 4 years of language)
+- Early decision/signing day deadlines
+- Scholarship offer status
 
-Event-driven via request_events.
+### Tutoring Performance
+- Sessions attended vs scheduled
+- Before/after grades per subject
+- Subjects currently being tutored
+- Tutor recommendations/notes
 
-### Triggers
-- created → notify parent
-- approved / rejected → notify student
-- assigned → notify tutor
-- accepted / declined → notify student + parent + admin
+### Academic Progress
+- Current GPA (overall + core courses)
+- Grade trends per subject
+- Semester-by-semester comparison
+- Projected GPA at graduation
 
----
+## Design Principles
+[Keep your existing principles about explaining logic, tradeoffs, etc.]
 
-## 8️⃣ Tutor Matching Model
+## Tech Stack
+[Your current stack]
 
-### MVP
-- Admin manually assigns tutor
-- Sets tutor_id
-- Tutor sees approved request
+## Key Differentiators from Standard LMS
+- NCAA eligibility is PRIMARY metric, not overall GPA
+- Target school comparison (not generic grade tracking)
+- Tutoring ROI visibility (before/after analysis)
+- Multi-stakeholder access (student, parent, tutor, coach)
+- Recruiting timeline integration
+```
 
-### Later
-- Auto-match by subject, grade, availability
+## Data Model Changes
 
----
+**New tables/collections you'll need**:
+```
+students
+- id
+- name
+- sport
+- graduationYear
+- ncaaEligibilityStatus
 
-## 9️⃣ Core Rule (Implementation Spec)
+targetSchools (many-to-many with students)
+- studentId
+- schoolName
+- division (D1/D2/D3)
+- minGPA
+- minSAT/ACT
+- status (reach/target/safety)
+- applicationDeadline
 
-All booking actions are status transitions.  
-All transitions write an event.
+tutoringHistory
+- studentId
+- tutorId
+- subject
+- sessionDate
+- notesFromTutor
+- assignedHomework
 
-For any request mutation:
-- validate role
-- validate family relationship
-- validate current status
-- update status
-- insert into request_events
+ncaaRequirements
+- studentId
+- coreCourseGPA
+- satScore
+- actScore
+- clearinghouseStatus
+- amateurismStatus
 
----
+gradeHistory (enhanced)
+- studentId
+- subject
+- grade
+- semester
+- isCoreCourse (boolean - for NCAA tracking)
+```
 
-## 🎓 Product Summary
+## API Endpoints to Add
+```
+GET /api/students/:id/ncaa-eligibility
+GET /api/students/:id/target-schools
+GET /api/students/:id/gap-analysis
+GET /api/students/:id/tutoring-sessions
+POST /api/tutoring-sessions (for tutors to log notes)
+GET /api/students/:id/recruiting-timeline
+```
 
-You’re building a role-based tutoring and academic support platform for middle- and high-school students (grades 9–12), offering help across English Language Arts (including Honors and AP), mathematics from pre-algebra through AP Calculus AB/BC, science (biology, chemistry, physics), and core social studies. Each tutoring session follows a structured approval chain: a student submits a request, a parent or guardian approves or rejects it, a tutor accepts and delivers the session, and an admin oversees matching, compliance, and quality. The platform enforces permissions, visibility, and state transitions at the system level.
+## Updated Dashboard Wireframe
+```
++--------------------------------------------------+
+| Welcome, [Name] - [Sport] | Class of [Year]      |
++--------------------------------------------------+
+| 🎯 NCAA ELIGIBILITY STATUS                        |
+| Core GPA: 3.2 ✅ | SAT: 1180 ⚠️ | Clearinghouse: ✅|
+| Status: ELIGIBLE for D1/D2/D3                     |
++--------------------------------------------------+
+| 📊 TARGET SCHOOLS GAP ANALYSIS                    |
+| 🟢 Texas A&M (3.0 req) - QUALIFIED               |
+| 🟡 LSU (3.3 req) - 0.1 away (Need A in Math)    |
+| 🔴 Alabama (3.5 req) - 0.3 away (2 semesters)   |
++--------------------------------------------------+
+| 📚 TUTORING PROGRESS                              |
+| Next Session: Tomorrow 4pm - Math (Mr. Johnson) |
+| Recent Improvement: English C+ → B (3 sessions)  |
+| Current Focus: Algebra II (blocking LSU req)     |
++--------------------------------------------------+
+| 📈 ACADEMIC PROGRESS                              |
+| Current GPA: 3.2 (↑ from 3.0 last semester)     |
+| Core Course GPA: 3.1 (NCAA requirement: 2.3 ✅)  |
+| Semester Trend: [Visual graph showing upward]    |
++--------------------------------------------------+
+| 🏈 RECRUITING TIMELINE                            |
+| Next Milestone: Junior Year Transcripts Due      |
+| Official Visit Window Opens: Sept 1              |
+| Early Signing Period: Nov 13-20                  |
++--------------------------------------------------+
