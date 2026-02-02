@@ -22,6 +22,12 @@ const roles = [
     desc: "Log notes & manage students",
     color: "var(--color-tutor)",
   },
+  {
+    key: "admin",
+    label: "Admin",
+    desc: "Manage platform & oversee operations",
+    color: "var(--color-admin)",
+  },
 ] as const;
 
 export default function LoginPage() {
