@@ -34,7 +34,7 @@ export default function LoginPage() {
                 {roles.map((role) => (
                   <li key={role.key}>
                     <a
-                      href={`/dashboard?role=${role.key}`}
+                      href={`/api/auth/mock-login?role=${role.key}`}
                       className={styles.dropdownItem}
                       style={
                         { "--role-color": role.color } as React.CSSProperties
