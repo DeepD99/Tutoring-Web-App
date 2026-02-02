@@ -1,50 +1,30 @@
-# Tutoring Web App
+# Student-Tutor Management Platform
 
-Foundation for a tutoring platform built with Next.js (App Router), TypeScript, and Supabase.
+A tutoring coordination and academic progress tracking platform for high school student-athletes.
 
-## 🚀 Getting Started
+## What This Does
+- **Session Management**: Schedule and track tutoring sessions
+- **Grade Tracking**: Monitor student academic progress over time
+- **Tutor Notes**: Communication hub between tutors, students, and parents
+- **Homework Tracking**: Assign and monitor homework completion
+- **Progress Dashboards**: Role-specific views for students, parents, and tutors
 
-### 1. Install Dependencies
-```bash
-npm install
-```
+## What This Does NOT Do
+- NCAA eligibility tracking (handled by parent platform)
+- College recruiting/matching (handled by parent platform)
+- Payment processing (handled by parent platform)
 
-### 2. Setup Environment Variables
-Copy `.env.example` to `.env.local` and fill in your Supabase credentials.
-```bash
-cp .env.example .env.local
-```
-- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL.
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key.
+## Tech Stack
+- Frontend: [Your stack - React/Next.js?]
+- Backend: [Your stack - Node/Django?]
+- Database: [PostgreSQL?]
+- Hosting: [Vercel?]
 
-### 3. Database Setup (Optional for Day 1)
-Run the SQL scripts located in `supabase/schema/` in your Supabase SQL Editor:
-1. `001_init.sql`
-2. `002_rls_policies.sql`
+## Project Context
+See `PRODUCT_CONTEXT.md` for detailed product requirements and `DEVELOPMENT_GUIDE.md` for coding standards.
 
-### 4. Run Development Server
-```bash
-npm run dev
-```
-Visit [https://tutoring-web-app-chi.vercel.app/login] to start.
+## Getting Started
+[Installation instructions once you have code]
 
-## 🔑 Mock Authentication
-For initial development, we use a mock authentication system:
-- Access `/login` to choose a role.
-- A cookie named `tp_session` is set to store a random UUID and the chosen role.
-- Middleware protects `/dashboard` and `/tutor/*` routes.
-
-## 🏗️ Project Structure
-- `src/app/api`: API routes for auth, profiles, and sessions.
-- `src/lib/auth`: Session management logic.
-- `src/lib/repositories`: Repository interfaces and implementations (DB-Contract Mode).
-- `src/lib/supabase`: Supabase client configuration.
-- `src/middleware.ts`: Route protection and role-based access.
-- `supabase/schema`: SQL migration files.
-
-## 📦 DB-Contract Mode
-The application uses a **Repository Pattern** to decouple business logic from the database provider. This allows development to continue even when Supabase is unavailable.
-
-- **Mock Repositories**: When `APP_ENV=local`, the app uses in-memory Map-based repositories (`*.mock.ts`).
-- **Data Persistence**: Mock data is lost on server restart. A default set of users (Tutor, Student, Parent) is seeded on initialization.
-- **Switching to Supabase**: To switch to Supabase, implement the repository interfaces using `@supabase/supabase-js` and update the factory in `src/lib/repositories/index.ts`.
+## Contributing
+[If relevant]
