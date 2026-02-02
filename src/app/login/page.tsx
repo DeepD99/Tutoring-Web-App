@@ -16,8 +16,10 @@ export default function LoginPage() {
   return (
     <main className={styles.page}>
       <div className={styles.card}>
-        <h1 className={styles.title}>Tutoring Platform</h1>
-        <p className={styles.subtitle}>Academic support for grades 9–12</p>
+        <h1 className={styles.title}>Student-Tutor Platform</h1>
+        <p className={styles.subtitle}>
+          Tutoring coordination & academic progress tracking
+        </p>
 
         <div className={styles.actions}>
           <div
@@ -34,7 +36,9 @@ export default function LoginPage() {
                     <a
                       href={`/login/${role.key}`}
                       className={styles.dropdownItem}
-                      style={{ "--role-color": role.color } as React.CSSProperties}
+                      style={
+                        { "--role-color": role.color } as React.CSSProperties
+                      }
                     >
                       <span
                         className={styles.dot}
