@@ -73,10 +73,9 @@
 
 .dropdownItem {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
+  padding: 0.625rem 0.75rem;
   color: var(--color-text);
   text-decoration: none;
   transition: background 0.1s;
@@ -84,6 +83,9 @@
 
 .dropdownItem:hover {
   background: var(--color-bg);
+}
+
+.dropdownItem:hover .dropdownLabel {
   color: var(--role-color);
 }
 
@@ -92,6 +94,23 @@
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.dropdownText {
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdownLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.1s;
+}
+
+.dropdownDesc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 /* ---- Sign up button ---- */

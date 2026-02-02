@@ -4,10 +4,24 @@ import { useState } from "react";
 import styles from "./login.module.css";
 
 const roles = [
-  { key: "student", label: "Student", color: "var(--color-student)" },
-  { key: "parent", label: "Parent / Guardian", color: "var(--color-parent)" },
-  { key: "tutor", label: "Tutor", color: "var(--color-tutor)" },
-  { key: "admin", label: "Admin", color: "var(--color-admin)" },
+  {
+    key: "student",
+    label: "Student Athlete",
+    desc: "View sessions, homework & grades",
+    color: "var(--color-student)",
+  },
+  {
+    key: "parent",
+    label: "Parent / Guardian",
+    desc: "Schedule sessions & track progress",
+    color: "var(--color-parent)",
+  },
+  {
+    key: "tutor",
+    label: "Tutor",
+    desc: "Log notes & manage students",
+    color: "var(--color-tutor)",
+  },
 ] as const;
 
 export default function LoginPage() {
@@ -16,8 +30,10 @@ export default function LoginPage() {
   return (
     <main className={styles.page}>
       <div className={styles.card}>
-        <h1 className={styles.title}>Tutoring Platform</h1>
-        <p className={styles.subtitle}>Academic support for grades 9–12</p>
+        <h1 className={styles.title}>Student-Tutor Platform</h1>
+        <p className={styles.subtitle}>
+          Tutoring coordination & academic progress tracking
+        </p>
 
         <div className={styles.actions}>
           <div
@@ -34,13 +50,20 @@ export default function LoginPage() {
                     <a
                       href={`/login/${role.key}`}
                       className={styles.dropdownItem}
-                      style={{ "--role-color": role.color } as React.CSSProperties}
+                      style={
+                        { "--role-color": role.color } as React.CSSProperties
+                      }
                     >
                       <span
                         className={styles.dot}
                         style={{ background: role.color }}
                       />
-                      {role.label}
+                      <span className={styles.dropdownText}>
+                        <span className={styles.dropdownLabel}>
+                          {role.label}
+                        </span>
+                        <span className={styles.dropdownDesc}>{role.desc}</span>
+                      </span>
                     </a>
                   </li>
                 ))}
