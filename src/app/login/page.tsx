@@ -4,30 +4,10 @@ import { useState } from "react";
 import styles from "./login.module.css";
 
 const roles = [
-  {
-    key: "student",
-    label: "Student Athlete",
-    desc: "View sessions, homework & grades",
-    color: "var(--color-student)",
-  },
-  {
-    key: "parent",
-    label: "Parent / Guardian",
-    desc: "Schedule sessions & track progress",
-    color: "var(--color-parent)",
-  },
-  {
-    key: "tutor",
-    label: "Tutor",
-    desc: "Log notes & manage students",
-    color: "var(--color-tutor)",
-  },
-  {
-    key: "admin",
-    label: "Admin",
-    desc: "Manage platform & oversee operations",
-    color: "var(--color-admin)",
-  },
+  { key: "student", label: "Student", color: "var(--color-student)" },
+  { key: "parent", label: "Parent / Guardian", color: "var(--color-parent)" },
+  { key: "tutor", label: "Tutor", color: "var(--color-tutor)" },
+  { key: "admin", label: "Admin", color: "var(--color-admin)" },
 ] as const;
 
 export default function LoginPage() {
@@ -64,12 +44,7 @@ export default function LoginPage() {
                         className={styles.dot}
                         style={{ background: role.color }}
                       />
-                      <span className={styles.dropdownText}>
-                        <span className={styles.dropdownLabel}>
-                          {role.label}
-                        </span>
-                        <span className={styles.dropdownDesc}>{role.desc}</span>
-                      </span>
+                      {role.label}
                     </a>
                   </li>
                 ))}
