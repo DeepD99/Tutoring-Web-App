@@ -5,34 +5,33 @@ export function middleware(request: NextRequest) {
     const sessionCookie = request.cookies.get('tp_session');
     const { pathname } = request.nextUrl;
 
-    // Paths requiring authentication
-    const protectedPaths = ['/dashboard', '/tutor', '/request', '/sessions', '/requests'];
+    const protectedPaths = ['/dashboard', '/tutor', '/sessions'];
     const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path));
 
-    if (isProtectedPath) {
-        if (!sessionCookie) {
-            return NextResponse.redirect(new URL('/login', request.url));
-        }
+    // Redirect to login if accessing protected route without session
+    if (isProtectedPath && !sessionCookie) {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
 
+    // Redirect to dashboard if logged in and visiting login
+    if (pathname.startsWith('/login') && sessionCookie) {
+        try {
+            JSON.parse(sessionCookie.value);
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        } catch {
+            // Invalid cookie, let them through to login
+        }
+    }
+
+    if (isProtectedPath && sessionCookie) {
         try {
             const session = JSON.parse(sessionCookie.value);
 
-            // Tutor specific protection
+            // Tutor-only routes
             if (pathname.startsWith('/tutor') && session.role !== 'tutor') {
                 return NextResponse.redirect(new URL('/dashboard', request.url));
             }
-
-            // Admin specific protection
-            if (pathname.startsWith('/requests') && session.role !== 'admin') {
-                return NextResponse.redirect(new URL('/dashboard', request.url));
-            }
-
-            // Parent/Student specific protection (Exclusive to /request but not /requests)
-            if (pathname.startsWith('/request') && !pathname.startsWith('/requests') && !['parent', 'student'].includes(session.role)) {
-                return NextResponse.redirect(new URL('/dashboard', request.url));
-            }
-
-        } catch (e) {
+        } catch {
             return NextResponse.redirect(new URL('/login', request.url));
         }
     }
@@ -41,5 +40,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/tutor/:path*', '/request/:path*', '/sessions/:path*', '/requests/:path*'],
+    matcher: ['/dashboard/:path*', '/tutor/:path*', '/sessions/:path*', '/login'],
 };
