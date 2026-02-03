@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import './dashboard.css';
 
 interface Student {
@@ -53,33 +53,12 @@ export default function StudentDashboard() {
     { subject: 'History', grade: 'B+', status: 'stable' }
   ]);
 
-  const [weekDays] = useState<DayColumn[]>(() => {
-    const today = new Date();
-    const dow = today.getDay();
-    const mondayOffset = dow === 0 ? -6 : 1 - dow;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + mondayOffset);
-
-    const initials = ['M', 'T', 'W', 'T', 'F'];
-    const sessionData: Record<number, SessionSlot[]> = {
-      0: [{ time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson' }],
-      1: [{ time: '3:30 PM', subject: 'English', tutor: 'Ms. Smith' }],
-      2: [{ time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson' }],
-      3: [],
-      4: [{ time: '3:00 PM', subject: 'English', tutor: 'Ms. Smith' }],
-    };
-
-    return initials.map((initial, i) => {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
-      return {
-        dayInitial: initial,
-        date: d.getDate(),
-        isToday: d.toDateString() === today.toDateString(),
-        sessions: sessionData[i] || [],
-      };
-    });
-  });
+  const [sessions, setSessions] = useState<Session[]>([
+    { id: '1', time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson', dayOfWeek: 'Monday', dayInitial: 'M', date: '3', isToday: true },
+    { id: '2', time: '3:30 PM', subject: 'English', tutor: 'Ms. Smith', dayOfWeek: 'Tuesday', dayInitial: 'T', date: '4', isToday: false },
+    { id: '3', time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson', dayOfWeek: 'Wednesday', dayInitial: 'W', date: '5', isToday: false },
+    { id: '4', time: '5:00 PM', subject: 'English', tutor: 'Ms. Smith', dayOfWeek: 'Friday', dayInitial: 'F', date: '7', isToday: false }
+  ]);
 
   const [homework, setHomework] = useState<Homework[]>([
     { id: '1', subject: 'MATH', title: 'Practice problems 1-15', dueDate: 'Due before session', isUrgent: true },
@@ -94,38 +73,38 @@ export default function StudentDashboard() {
     gradesImproved: 2
   });
 
-  const getGradeColor = (grade: string): string => {
+  const getGradeColor = useCallback((grade: string): string => {
     if (grade.startsWith('A')) return 'grade-good';
     if (grade.startsWith('B')) return 'grade-warn';
     return 'grade-alert';
-  };
+  }, []);
 
-  const getTrendIcon = (status: string): string => {
+  const getTrendIcon = useCallback((status: string): string => {
     if (status === 'improving') return '↑';
     if (status === 'declining') return '↓';
     return '→';
-  };
+  }, []);
 
-  const getTrendClass = (status: string): string => {
+  const getTrendClass = useCallback((status: string): string => {
     if (status === 'improving') return 'trend-up';
     if (status === 'declining') return 'trend-down';
     return 'trend-stable';
-  };
+  }, []);
 
-  const handleHomeworkComplete = (id: string) => {
-    setHomework(homework.map(hw => 
+  const handleHomeworkComplete = useCallback((id: string) => {
+    setHomework(homework.map(hw =>
       hw.id === id ? { ...hw, isUrgent: false } : hw
     ));
-  };
+  }, [homework]);
 
-  const getCurrentDate = (): string => {
-    return new Date().toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+  const getCurrentDate = useCallback((): string => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
-  };
+  }, []);
 
   return (
     <div className="dashboard-container">
