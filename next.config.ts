@@ -1,7 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Performance optimizations */
+  reactStrictMode: true,
+
+  // Faster refresh in development
+  experimental: {
+    optimizePackageImports: ['react', 'react-dom'],
+  },
+
+  // Reduce overhead
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
 };
 
 export default nextConfig;
