@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './dashboard.css';
 
 interface Student {
@@ -17,13 +17,17 @@ interface Grade {
   previousGrade?: string;
 }
 
-interface Session {
-  id: string;
+interface SessionSlot {
   time: string;
   subject: string;
   tutor: string;
+}
+
+interface DayColumn {
+  dayInitial: string;
+  date: number;
   isToday: boolean;
-  badge: string;
+  sessions: SessionSlot[];
 }
 
 interface Homework {
@@ -35,26 +39,52 @@ interface Homework {
 }
 
 export default function StudentDashboard() {
-  const [student, setStudent] = useState<Student>({
+  const [student] = useState<Student>({
     name: 'Marcus',
     sport: 'Football',
     gradeLevel: 11,
     gpa: 3.2
   });
 
-  const [grades, setGrades] = useState<Grade[]>([
+  const [grades] = useState<Grade[]>([
     { subject: 'Mathematics', grade: 'B', status: 'improving', previousGrade: 'C+' },
     { subject: 'English', grade: 'B', status: 'improving', previousGrade: 'C+' },
     { subject: 'Science', grade: 'A-', status: 'stable' },
     { subject: 'History', grade: 'B+', status: 'stable' }
   ]);
 
-  const [sessions, setSessions] = useState<Session[]>([
-    { id: '1', time: 'TODAY 4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson', isToday: true, badge: 'Today' },
-    { id: '2', time: 'TOMORROW 3:30 PM', subject: 'English', tutor: 'Ms. Smith', isToday: false, badge: 'Tomorrow' },
-    { id: '3', time: 'WED 4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson', isToday: false, badge: 'Wed' },
-    { id: '4', time: 'FRI 3:00 PM', subject: 'English', tutor: 'Ms. Smith', isToday: false, badge: 'Fri' }
-  ]);
+  const [weekDays] = useState<DayColumn[]>(() => {
+    const today = new Date();
+    const dow = today.getDay();
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset);
+
+    const initials = ['M', 'T', 'W', 'T', 'F'];
+    const sessionData: Record<number, SessionSlot[]> = {
+      0: [{ time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson' }],
+      1: [{ time: '3:30 PM', subject: 'English', tutor: 'Ms. Smith' }],
+      2: [{ time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson' }],
+      3: [],
+      4: [{ time: '3:00 PM', subject: 'English', tutor: 'Ms. Smith' }],
+    };
+
+    return initials.map((initial, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      return {
+        dayInitial: initial,
+        date: d.getDate(),
+        isToday: d.toDateString() === today.toDateString(),
+        sessions: sessionData[i] || [],
+      };
+    });
+  });
+
+  const [expandedDay, setExpandedDay] = useState<number | null>(() => {
+    const dow = new Date().getDay();
+    return dow >= 1 && dow <= 5 ? dow - 1 : 0;
+  });
 
   const [homework, setHomework] = useState<Homework[]>([
     { id: '1', subject: 'MATH', title: 'Practice problems 1-15', dueDate: 'Due before session', isUrgent: true },
@@ -62,7 +92,7 @@ export default function StudentDashboard() {
     { id: '3', subject: 'HISTORY', title: 'Chapter 5 reading notes', dueDate: 'Due Friday', isUrgent: false }
   ]);
 
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     gpa: 3.2,
     sessions: '8/8',
     homework: 85,
@@ -141,12 +171,49 @@ export default function StudentDashboard() {
         </div>
       </section>
 
+      {/* Weekly Sessions */}
+      <section className="section-card week-sessions">
+        <div className="section-header">
+          <h2 className="section-title">Tutoring Sessions</h2>
+          <a href="/request" className="section-action">Request More →</a>
+        </div>
+        <div className="week-columns">
+          {weekDays.map((day, i) => (
+            <div
+              key={i}
+              className={`week-day ${day.isToday ? 'week-day-today' : ''} ${expandedDay === i ? 'week-day-expanded' : ''} ${day.sessions.length === 0 ? 'week-day-empty' : ''}`}
+              onClick={() => setExpandedDay(expandedDay === i ? null : i)}
+            >
+              <div className="week-day-header">
+                <span className="week-day-initial">{day.dayInitial}</span>
+                <span className="week-day-date">{day.date}</span>
+                {day.sessions.length > 0 && <span className="week-day-dot" />}
+              </div>
+              {expandedDay === i && (
+                <div className="week-day-detail">
+                  {day.sessions.length > 0 ? (
+                    day.sessions.map((s, j) => (
+                      <div key={j} className="week-session-slot">
+                        <div className="week-session-time">{s.time}</div>
+                        <div className="week-session-subject">{s.subject}</div>
+                        <div className="week-session-tutor">{s.tutor}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="week-session-empty">No sessions</div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Main Dashboard Grid */}
       <div className="dashboard-grid">
-        {/* Left Column: Grades & Sessions */}
+        {/* Left Column: Grades */}
         <div className="dashboard-left">
-          {/* Current Grades */}
-          <section className="section-card" style={{ marginBottom: '2rem' }}>
+          <section className="section-card">
             <div className="section-header">
               <h2 className="section-title">Current Grades</h2>
               <a href="#" className="section-action">View All →</a>
@@ -166,38 +233,11 @@ export default function StudentDashboard() {
                   <div className="grade-status">
                     <span className={`status-icon status-${grade.status}`}></span>
                     <span>
-                      {grade.status === 'improving' && grade.previousGrade 
-                        ? `Improved from ${grade.previousGrade}` 
-                        : grade.status === 'stable' 
-                        ? 'Stable' 
+                      {grade.status === 'improving' && grade.previousGrade
+                        ? `Improved from ${grade.previousGrade}`
+                        : grade.status === 'stable'
+                        ? 'Stable'
                         : 'On track'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Upcoming Sessions */}
-          <section className="section-card">
-            <div className="section-header">
-              <h2 className="section-title">Tutoring Sessions</h2>
-              <a href="#" className="section-action">Request More →</a>
-            </div>
-            <div className="sessions-timeline">
-              {sessions.map((session) => (
-                <div 
-                  key={session.id} 
-                  className={`session-item ${session.isToday ? 'session-today' : ''}`}
-                >
-                  <div className="session-time">{session.time}</div>
-                  <div className="session-details">
-                    <div>
-                      <div className="session-subject">{session.subject}</div>
-                      <div className="session-tutor">with {session.tutor}</div>
-                    </div>
-                    <span className={`session-badge ${session.isToday ? 'badge-today' : 'badge-upcoming'}`}>
-                      {session.badge}
                     </span>
                   </div>
                 </div>
@@ -223,7 +263,7 @@ export default function StudentDashboard() {
                   </div>
                   <div className="homework-title">{hw.title}</div>
                   <div className="homework-actions">
-                    <button 
+                    <button
                       className="hw-btn hw-btn-complete"
                       onClick={() => handleHomeworkComplete(hw.id)}
                     >
