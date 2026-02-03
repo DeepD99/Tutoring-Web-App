@@ -1,9 +1,9 @@
 /* Request/Booking Page */
 
 .request-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 3rem;
   background: linear-gradient(135deg, #0A1628 0%, #1a2842 100%);
   min-height: 100vh;
   color: #fff;
@@ -229,7 +229,7 @@
 
 .time-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem;
 }
 
@@ -535,6 +535,16 @@
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+  .request-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .time-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 600px) {
   .request-container {
     padding: 1.5rem 1rem;
