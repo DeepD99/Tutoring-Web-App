@@ -487,6 +487,161 @@
   color: var(--white);
 }
 
+/* Weekly Sessions */
+.week-sessions {
+  margin-bottom: 2rem;
+  animation: slideUp 0.8s ease-out 0.3s backwards;
+}
+
+.week-columns {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+.week-day {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1rem 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 80px;
+}
+
+.week-day:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.week-day-today {
+  border-color: var(--green-success);
+  background: rgba(0, 212, 170, 0.08);
+}
+
+.week-day-today:hover {
+  background: rgba(0, 212, 170, 0.12);
+  border-color: var(--green-success);
+}
+
+.week-day-expanded {
+  border-color: var(--orange-vibrant);
+  background: rgba(255, 107, 53, 0.06);
+}
+
+.week-day-expanded.week-day-today {
+  border-color: var(--green-success);
+  background: rgba(0, 212, 170, 0.1);
+}
+
+.week-day-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.week-day-initial {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-mid);
+}
+
+.week-day-today .week-day-initial {
+  color: var(--green-success);
+}
+
+.week-day-date {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1;
+}
+
+.week-day-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--orange-vibrant);
+  margin-top: 0.25rem;
+}
+
+.week-day-today .week-day-dot {
+  background: var(--green-success);
+}
+
+.week-day-empty .week-day-date {
+  color: var(--gray-mid);
+}
+
+.week-day-detail {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: expandDown 0.3s ease-out;
+}
+
+@keyframes expandDown {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 200px; }
+}
+
+.week-session-slot {
+  text-align: left;
+  padding: 0.5rem 0;
+}
+
+.week-session-slot + .week-session-slot {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.week-session-time {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--orange-vibrant);
+  margin-bottom: 0.2rem;
+}
+
+.week-day-today .week-session-time {
+  color: var(--green-success);
+}
+
+.week-session-subject {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--white);
+}
+
+.week-session-tutor {
+  font-size: 0.75rem;
+  color: var(--gray-mid);
+}
+
+.week-session-empty {
+  font-size: 0.8rem;
+  color: var(--gray-mid);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .week-columns {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+  }
+
+  .week-day-date {
+    font-size: 1.2rem;
+  }
+}
+
 /* Homework Section */
 .homework-list {
   display: flex;

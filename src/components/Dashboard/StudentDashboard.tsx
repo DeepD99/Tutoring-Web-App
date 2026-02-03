@@ -17,15 +17,17 @@ interface Grade {
   previousGrade?: string;
 }
 
-interface Session {
-  id: string;
+interface SessionSlot {
   time: string;
   subject: string;
   tutor: string;
-  dayOfWeek: string;
+}
+
+interface DayColumn {
   dayInitial: string;
-  date: string;
+  date: number;
   isToday: boolean;
+  sessions: SessionSlot[];
 }
 
 interface Homework {
@@ -37,14 +39,14 @@ interface Homework {
 }
 
 export default function StudentDashboard() {
-  const [student, setStudent] = useState<Student>({
+  const [student] = useState<Student>({
     name: 'Marcus',
     sport: 'Football',
     gradeLevel: 11,
     gpa: 3.2
   });
 
-  const [grades, setGrades] = useState<Grade[]>([
+  const [grades] = useState<Grade[]>([
     { subject: 'Mathematics', grade: 'B', status: 'improving', previousGrade: 'C+' },
     { subject: 'English', grade: 'B', status: 'improving', previousGrade: 'C+' },
     { subject: 'Science', grade: 'A-', status: 'stable' },
@@ -64,7 +66,7 @@ export default function StudentDashboard() {
     { id: '3', subject: 'HISTORY', title: 'Chapter 5 reading notes', dueDate: 'Due Friday', isUrgent: false }
   ]);
 
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     gpa: 3.2,
     sessions: '8/8',
     homework: 85,
@@ -143,34 +145,38 @@ export default function StudentDashboard() {
         </div>
       </section>
 
-      {/* Tutoring Sessions - Weekly Calendar */}
-      <section className="section-card sessions-section">
+      {/* Weekly Sessions */}
+      <section className="section-card week-sessions">
         <div className="section-header">
           <h2 className="section-title">Tutoring Sessions</h2>
-          <a href="#" className="section-action">Request More →</a>
+          <a href="/request" className="section-action">Request More →</a>
         </div>
-        <div className="weekly-calendar">
-          {['M', 'T', 'W', 'TH', 'F'].map((dayInitial, index) => {
-            const session = sessions.find(s => s.dayInitial === dayInitial.charAt(0));
-            const dayNumber = session ? session.date : String(3 + index);
-            const isToday = session?.isToday || false;
-
-            return (
-              <div key={index} className={`day-box ${isToday ? 'day-today' : ''}`}>
-                <div className="day-header">
-                  <div className="day-initial">{dayInitial}</div>
-                  <div className="day-date">{dayNumber}</div>
-                </div>
-                {session && (
-                  <div className="day-sessions">
-                    <div className="session-time-slot">{session.time}</div>
-                    <div className="session-subject-mini">{session.subject}</div>
-                    <div className="session-tutor-mini">with {session.tutor}</div>
-                  </div>
+        <div className="week-columns">
+          {weekDays.map((day, i) => (
+            <div
+              key={i}
+              className={`week-day ${day.isToday ? 'week-day-today' : ''} ${day.sessions.length === 0 ? 'week-day-empty' : ''}`}
+            >
+              <div className="week-day-header">
+                <span className="week-day-initial">{day.dayInitial}</span>
+                <span className="week-day-date">{day.date}</span>
+                {day.sessions.length > 0 && <span className="week-day-dot" />}
+              </div>
+              <div className="week-day-detail">
+                {day.sessions.length > 0 ? (
+                  day.sessions.map((s, j) => (
+                    <div key={j} className="week-session-slot">
+                      <div className="week-session-time">{s.time}</div>
+                      <div className="week-session-subject">{s.subject}</div>
+                      <div className="week-session-tutor">{s.tutor}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="week-session-empty">No sessions</div>
                 )}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </section>
 
@@ -178,7 +184,6 @@ export default function StudentDashboard() {
       <div className="dashboard-grid">
         {/* Left Column: Grades */}
         <div className="dashboard-left">
-          {/* Current Grades */}
           <section className="section-card">
             <div className="section-header">
               <h2 className="section-title">Current Grades</h2>
@@ -202,8 +207,8 @@ export default function StudentDashboard() {
                       {grade.status === 'improving' && grade.previousGrade
                         ? `Improved from ${grade.previousGrade}`
                         : grade.status === 'stable'
-                          ? 'Stable'
-                          : 'On track'}
+                        ? 'Stable'
+                        : 'On track'}
                     </span>
                   </div>
                 </div>
