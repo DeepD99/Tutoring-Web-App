@@ -81,11 +81,6 @@ export default function StudentDashboard() {
     });
   });
 
-  const [expandedDay, setExpandedDay] = useState<number | null>(() => {
-    const dow = new Date().getDay();
-    return dow >= 1 && dow <= 5 ? dow - 1 : 0;
-  });
-
   const [homework, setHomework] = useState<Homework[]>([
     { id: '1', subject: 'MATH', title: 'Practice problems 1-15', dueDate: 'Due before session', isUrgent: true },
     { id: '2', subject: 'ENGLISH', title: 'Essay outline - College Application', dueDate: 'Due Thursday', isUrgent: false },
@@ -181,29 +176,26 @@ export default function StudentDashboard() {
           {weekDays.map((day, i) => (
             <div
               key={i}
-              className={`week-day ${day.isToday ? 'week-day-today' : ''} ${expandedDay === i ? 'week-day-expanded' : ''} ${day.sessions.length === 0 ? 'week-day-empty' : ''}`}
-              onClick={() => setExpandedDay(expandedDay === i ? null : i)}
+              className={`week-day ${day.isToday ? 'week-day-today' : ''} ${day.sessions.length === 0 ? 'week-day-empty' : ''}`}
             >
               <div className="week-day-header">
                 <span className="week-day-initial">{day.dayInitial}</span>
                 <span className="week-day-date">{day.date}</span>
                 {day.sessions.length > 0 && <span className="week-day-dot" />}
               </div>
-              {expandedDay === i && (
-                <div className="week-day-detail">
-                  {day.sessions.length > 0 ? (
-                    day.sessions.map((s, j) => (
-                      <div key={j} className="week-session-slot">
-                        <div className="week-session-time">{s.time}</div>
-                        <div className="week-session-subject">{s.subject}</div>
-                        <div className="week-session-tutor">{s.tutor}</div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="week-session-empty">No sessions</div>
-                  )}
-                </div>
-              )}
+              <div className="week-day-detail">
+                {day.sessions.length > 0 ? (
+                  day.sessions.map((s, j) => (
+                    <div key={j} className="week-session-slot">
+                      <div className="week-session-time">{s.time}</div>
+                      <div className="week-session-subject">{s.subject}</div>
+                      <div className="week-session-tutor">{s.tutor}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="week-session-empty">No sessions</div>
+                )}
+              </div>
             </div>
           ))}
         </div>
