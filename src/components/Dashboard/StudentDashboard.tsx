@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import './dashboard.css';
 
 interface Student {
@@ -17,17 +17,15 @@ interface Grade {
   previousGrade?: string;
 }
 
-interface SessionSlot {
+interface Session {
+  id: string;
   time: string;
   subject: string;
   tutor: string;
-}
-
-interface DayColumn {
+  dayOfWeek: string;
   dayInitial: string;
-  date: number;
+  date: string;
   isToday: boolean;
-  sessions: SessionSlot[];
 }
 
 interface Homework {
@@ -53,17 +51,17 @@ export default function StudentDashboard() {
     { subject: 'History', grade: 'B+', status: 'stable' }
   ]);
 
-  const [sessions, setSessions] = useState<Session[]>([
-    { id: '1', time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson', dayOfWeek: 'Monday', dayInitial: 'M', date: '3', isToday: true },
-    { id: '2', time: '3:30 PM', subject: 'English', tutor: 'Ms. Smith', dayOfWeek: 'Tuesday', dayInitial: 'T', date: '4', isToday: false },
+  const [sessions] = useState<Session[]>([
+    { id: '1', time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson', dayOfWeek: 'Monday',    dayInitial: 'M', date: '3', isToday: true  },
+    { id: '2', time: '3:30 PM', subject: 'English',     tutor: 'Ms. Smith',   dayOfWeek: 'Tuesday',   dayInitial: 'T', date: '4', isToday: false },
     { id: '3', time: '4:00 PM', subject: 'Mathematics', tutor: 'Mr. Johnson', dayOfWeek: 'Wednesday', dayInitial: 'W', date: '5', isToday: false },
-    { id: '4', time: '5:00 PM', subject: 'English', tutor: 'Ms. Smith', dayOfWeek: 'Friday', dayInitial: 'F', date: '7', isToday: false }
+    { id: '4', time: '5:00 PM', subject: 'English',     tutor: 'Ms. Smith',   dayOfWeek: 'Friday',    dayInitial: 'F', date: '7', isToday: false },
   ]);
 
   const [homework, setHomework] = useState<Homework[]>([
-    { id: '1', subject: 'MATH', title: 'Practice problems 1-15', dueDate: 'Due before session', isUrgent: true },
-    { id: '2', subject: 'ENGLISH', title: 'Essay outline - College Application', dueDate: 'Due Thursday', isUrgent: false },
-    { id: '3', subject: 'HISTORY', title: 'Chapter 5 reading notes', dueDate: 'Due Friday', isUrgent: false }
+    { id: '1', subject: 'MATH',    title: 'Practice problems 1-15',             dueDate: 'Due before session', isUrgent: true  },
+    { id: '2', subject: 'ENGLISH', title: 'Essay outline - College Application', dueDate: 'Due Thursday',      isUrgent: false },
+    { id: '3', subject: 'HISTORY', title: 'Chapter 5 reading notes',             dueDate: 'Due Friday',        isUrgent: false },
   ]);
 
   const [stats] = useState({
@@ -72,6 +70,28 @@ export default function StudentDashboard() {
     homework: 85,
     gradesImproved: 2
   });
+
+  // Build the 5-column week view from the flat sessions list
+  const weekDays = useMemo(() => {
+    const dayNames    = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const dayInitials = ['M', 'T', 'W', 'T', 'F'];
+    const today = new Date();
+    const dow = today.getDay();
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset);
+
+    return dayNames.map((dayName, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      return {
+        dayInitial: dayInitials[i],
+        date: d.getDate(),
+        isToday: d.toDateString() === today.toDateString(),
+        sessions: sessions.filter(s => s.dayOfWeek === dayName),
+      };
+    });
+  }, [sessions]);
 
   const getGradeColor = useCallback((grade: string): string => {
     if (grade.startsWith('A')) return 'grade-good';
@@ -92,10 +112,10 @@ export default function StudentDashboard() {
   }, []);
 
   const handleHomeworkComplete = useCallback((id: string) => {
-    setHomework(homework.map(hw =>
+    setHomework(prev => prev.map(hw =>
       hw.id === id ? { ...hw, isUrgent: false } : hw
     ));
-  }, [homework]);
+  }, []);
 
   const getCurrentDate = useCallback((): string => {
     return new Date().toLocaleDateString('en-US', {
