@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Student-Tutor Platform",
-  description: "Tutoring coordination and academic progress tracking",
+  title: "Get ElevateED — SAT/ACT Prep & On-Demand Tutoring",
+  description: "Dedicated to helping families navigate the path to college success. Background-checked tutors, personalized instruction, and measurable results.",
 };
 
 export default function RootLayout({
