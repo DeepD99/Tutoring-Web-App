@@ -7,7 +7,7 @@ export default function LandingPage() {
       {/* ── NAV ── */}
       <nav className="nav">
         <a href="/" className="nav-logo">
-          <img src="/logo.png" alt="Get ElevateED" className="nav-logo-img" />
+          <img src="/images/logo.png" alt="Get ElevateED" className="nav-logo-img" />
           <span className="nav-logo-text">Get <span>ElevateED</span></span>
         </a>
         <ul className="nav-links">
@@ -159,7 +159,7 @@ export default function LandingPage() {
       <section id="about" className="about-section">
         <div className="about-inner">
           <div className="about-logo-wrap">
-            <img src="/logo.png" alt="Get ElevateED LLC" className="about-logo" />
+            <img src="/images/logo.png" alt="Get ElevateED LLC" className="about-logo" />
           </div>
           <div className="about-content">
             <span className="section-label">Our Mission</span>
@@ -322,7 +322,7 @@ export default function LandingPage() {
           <div className="footer-top">
             <div className="footer-brand">
               <div className="footer-logo">
-                <img src="/logo.png" alt="Get ElevateED" className="footer-logo-img" />
+                <img src="/images/logo.png" alt="Get ElevateED" className="footer-logo-img" />
                 <span className="footer-logo-text">Get <span>ElevateED</span></span>
               </div>
               <p className="footer-tagline">
